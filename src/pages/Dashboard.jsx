@@ -22,7 +22,7 @@ function Dashboard() {
     try {
 
       const res = await axios.put(
-        `http://localhost:5000/api/auth/change-username/${user._id}`,
+        `https://mern-auth-backend-lwz3.onrender.com/api/auth/change-username/${user._id}`,
         { username }
       );
 
@@ -51,7 +51,7 @@ function Dashboard() {
     try {
 
       await axios.put(
-        `http://localhost:5000/api/auth/change-password/${user._id}`,
+        `https://mern-auth-backend-lwz3.onrender.com/api/auth/change-password/${user._id}`,
         { password }
       );
 
@@ -73,7 +73,7 @@ function Dashboard() {
     try {
 
       await axios.delete(
-        `http://localhost:5000/api/auth/delete-user/${user._id}`
+        `https://mern-auth-backend-lwz3.onrender.com/api/auth/delete-user/${user._id}`
       );
 
       localStorage.removeItem("user");
