@@ -11,12 +11,16 @@ function Dashboard() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [profilePic, setProfilePic] = useState("");
 
   if (!user) {
-    return <h1>No user logged in</h1>;
+    return (
+      <h1 className="text-center text-2xl mt-10">
+        No user logged in
+      </h1>
+    );
   }
 
-  // CHANGE USERNAME
   const changeUsername = async () => {
 
     try {
@@ -35,9 +39,7 @@ function Dashboard() {
 
       window.location.reload();
 
-    } catch(err) {
-
-      console.log(err);
+    } catch (err) {
 
       alert("Failed to update username");
 
@@ -45,7 +47,6 @@ function Dashboard() {
 
   };
 
-  // CHANGE PASSWORD
   const changePassword = async () => {
 
     try {
@@ -57,9 +58,7 @@ function Dashboard() {
 
       alert("Password updated");
 
-    } catch(err) {
-
-      console.log(err);
+    } catch (err) {
 
       alert("Failed to update password");
 
@@ -67,7 +66,34 @@ function Dashboard() {
 
   };
 
-  // DELETE ACCOUNT
+  const changeProfilePic = async () => {
+
+    try {
+
+      const res = await axios.put(
+        `https://mern-auth-backend-lwz3.onrender.com/api/auth/change-profile-pic/${user._id}`,
+        {
+          profilePic
+        }
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data)
+      );
+
+      alert("Profile Picture Updated");
+
+      window.location.reload();
+
+    } catch (err) {
+
+      alert("Failed to update profile picture");
+
+    }
+
+  };
+
   const deleteUser = async () => {
 
     try {
@@ -78,13 +104,11 @@ function Dashboard() {
 
       localStorage.removeItem("user");
 
-      alert("Account deleted");
+      alert("Account Deleted");
 
       window.location.href = "/";
 
-    } catch(err) {
-
-      console.log(err);
+    } catch (err) {
 
       alert("Failed to delete account");
 
@@ -92,55 +116,130 @@ function Dashboard() {
 
   };
 
+  const logout = () => {
+
+    localStorage.removeItem("user");
+
+    window.location.href = "/";
+
+  };
+
   return (
 
-    <div>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
 
-      <h1>Dashboard</h1>
+      <div className="bg-white shadow-xl rounded-2xl w-full max-w-2xl p-8">
 
-      <h2>
-        Welcome {user.username}
-      </h2>
+        <div className="text-center">
 
-      <hr />
+          <img
+            src={user.profilePic}
+            alt="Profile"
+            className="w-32 h-32 rounded-full mx-auto border-4 border-blue-500 object-cover"
+          />
 
-      <h3>Change Username</h3>
+          <h1 className="text-3xl font-bold mt-4">
+            Welcome {user.username}
+          </h1>
 
-      <input
-        type="text"
-        placeholder="New Username"
-        onChange={(e) => setUsername(e.target.value)}
-      />
+          <p className="text-gray-500">
+            {user.email}
+          </p>
 
-      <button onClick={changeUsername}>
-        Change Username
-      </button>
-      
-      <hr />
+        </div>
 
-      <h3>Change Password</h3>
+        <hr className="my-6" />
 
-      <input
-        type="password"
-        placeholder="New Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <h2 className="text-xl font-semibold mb-2">
+          Change Username
+        </h2>
 
-      <button onClick={changePassword}>
-        Change Password
-      </button>
+        <input
+          type="text"
+          placeholder="New Username"
+          onChange={(e) =>
+            setUsername(e.target.value)
+          }
+          className="w-full border p-3 rounded-lg mb-3"
+        />
 
-      <hr />
+        <button
+          onClick={changeUsername}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Update Username
+        </button>
 
-      <h3>Delete Account</h3>
+        <hr className="my-6" />
 
-      <button onClick={deleteUser}>
-        Delete Account
-      </button>
+        <h2 className="text-xl font-semibold mb-2">
+          Change Password
+        </h2>
+
+        <input
+          type="password"
+          placeholder="New Password"
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+          className="w-full border p-3 rounded-lg mb-3"
+        />
+
+        <button
+          onClick={changePassword}
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+        >
+          Update Password
+        </button>
+
+        <hr className="my-6" />
+
+        <h2 className="text-xl font-semibold mb-2">
+          Change Profile Picture
+        </h2>
+
+        <input
+          type="text"
+          placeholder="New Profile Picture URL"
+          onChange={(e) =>
+            setProfilePic(e.target.value)
+          }
+          className="w-full border p-3 rounded-lg mb-3"
+        />
+
+        <button
+          onClick={changeProfilePic}
+          className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
+        >
+          Update Picture
+        </button>
+
+        <hr className="my-6" />
+
+        <div className="flex gap-4">
+
+          <button
+            onClick={logout}
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black"
+          >
+            Logout
+          </button>
+
+          <button
+            onClick={deleteUser}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+          >
+            Delete Account
+          </button>
+
+        </div>
+
+      </div>
 
     </div>
 
   );
+
 }
 
 export default Dashboard;

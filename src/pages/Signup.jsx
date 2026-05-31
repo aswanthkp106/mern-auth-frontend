@@ -7,7 +7,8 @@ function Signup() {
   const [user, setUser] = useState({
     username: "",
     email: "",
-    password: ""
+    password: "",
+    profilePic: ""
   });
 
   const handleChange = (e) => {
@@ -72,6 +73,13 @@ function Signup() {
           type="password"
           name="password"
           placeholder="Password"
+          onChange={handleChange}
+        />
+
+        <input
+          type="text"
+          name="profilePic"
+          placeholder="Profile Picture URL"
           onChange={handleChange}
         />
 
