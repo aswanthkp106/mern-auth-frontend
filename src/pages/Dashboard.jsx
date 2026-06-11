@@ -1,151 +1,158 @@
-return (
-  <div className="bg-light min-vh-100">
-    {/* 1. Top Professional Navigation Bar */}
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3 mb-5">
-      <div className="container">
-        <span className="navbar-brand fw-bold tracking-wide">
-          Account Management Portal
-        </span>
-        <button 
-          onClick={logout} 
-          className="btn btn-outline-light btn-sm px-3 fw-semibold rounded-2"
-        >
-          Logout
-        </button>
-      </div>
-    </nav>
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-    {/* 2. Main Content Container Grid */}
-    <div className="container pb-5">
-      <div className="row g-4">
-        
-        {/* LEFT COLUMN: User Information Card */}
-        <div className="col-12 col-md-4">
-          <div className="card shadow-sm border border-secondary border-opacity-25 rounded-3 bg-white p-4 text-center">
-            
-            {/* Fallback layout for missing or empty user profile pictures */}
-            <div className="mb-3 position-relative d-inline-block mx-auto">
-              <img
-                src={user.profilePic || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80"}
-                alt="Profile"
-                className="rounded-circle border border-dark border-2 p-1 object-cover shadow-sm"
-                style={{ width: "120px", height: "120px", objectFit: "cover" }}
-              />
+function Dashboard() {
+  const [user, setUser] = useState({
+    username: "",
+    email: "",
+    profilePic: ""
+  });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [profilePic, setProfilePic] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      window.location.href = "/login";
+    }
+  }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePic(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const changeUsername = async () => {
+    try {
+      const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-username", { username }, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      const updated = { ...user, username: res.data.username };
+      localStorage.setItem("user", JSON.stringify(updated));
+      setUser(updated);
+      alert("Username changed!");
+    } catch (err) {
+      alert("Failed to change username");
+    }
+  };
+
+  const changePassword = async () => {
+    try {
+      await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/change-password", { password }, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      alert("Password changed!");
+    } catch (err) {
+      alert("Failed to change password");
+    }
+  };
+
+  const changeProfilePic = async () => {
+    if (!profilePic) return alert("Please select an image file first!");
+    try {
+      const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-profilepic", { profilePic }, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      const updated = { ...user, profilePic: res.data.profilePic };
+      localStorage.setItem("user", JSON.stringify(updated));
+      setUser(updated);
+      alert("Profile picture updated!");
+    } catch (err) {
+      alert("Failed to update profile picture");
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
+
+  const deleteUser = async () => {
+    if (window.confirm("Are you sure you want to delete your account?")) {
+      try {
+        await axios.delete("https://mern-auth-backend-lwz3.onrender.com/api/user/delete", {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        localStorage.removeItem("user");
+        alert("Account deleted");
+        window.location.href = "/";
+      } catch (err) {
+        alert("Failed to delete account");
+      }
+    }
+  };
+
+  return (
+    <div>
+      <nav className="dash-nav">
+        <span className="dash-brand">Control Center Dashboard</span>
+        <button onClick={logout} className="logout-nav-btn">Logout</button>
+      </nav>
+
+      <div className="dash-main-grid">
+        {/* Left Card Area: Perfectly Round Glowing Frame */}
+        <div className="dash-card profile-panel">
+          <div className="avatar-wrapper">
+            <img
+              src={user.profilePic || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"}
+              alt="Profile Avatar"
+              className="avatar-img-element"
+            />
+          </div>
+          <h2 className="dash-user-name">Welcome, {user.username}</h2>
+          <p className="dash-user-email">{user.email}</p>
+        </div>
+
+        {/* Right Card Area: Account Mutation Inputs */}
+        <div className="dash-card">
+          <h3 className="settings-title">Account Management</h3>
+
+          <div className="control-row-item">
+            <label className="field-label">Change Profile Name</label>
+            <div className="inline-input-group">
+              <input type="text" placeholder="Enter new username" onChange={(e) => setUsername(e.target.value)} className="modern-input" />
+              <button onClick={changeUsername} className="row-action-btn">Update</button>
             </div>
+          </div>
 
-            <h3 className="fw-bold text-dark mb-1">
-              {user.username}
-            </h3>
-            <p className="text-muted small mb-0 font-monospace">
-              {user.email}
-            </p>
-            
-            <hr className="my-4 text-secondary opacity-25" />
-            
-            <div className="text-start">
-              <span className="badge bg-secondary bg-opacity-10 text-dark border border-dark border-opacity-10 py-2 px-3 w-100 rounded-2 text-center small fw-semibold">
-                Status: Verified Account
-              </span>
+          <div className="control-row-item">
+            <label className="field-label">Change Account Password</label>
+            <div className="inline-input-group">
+              <input type="password" placeholder="Enter new password" onChange={(e) => setPassword(e.target.value)} className="modern-input" />
+              <button onClick={changePassword} className="row-action-btn">Update</button>
+            </div>
+          </div>
+
+          <div className="control-row-item">
+            <label className="field-label">Upload New Profile Photo</label>
+            <div className="inline-input-group">
+              <input type="file" accept="image/*" onChange={handleFileChange} className="modern-input" />
+              <button onClick={changeProfilePic} className="row-action-btn">Update</button>
+            </div>
+          </div>
+
+          <div className="danger-section">
+            <div className="danger-alert-box">
+              <div>
+                <h4 style={{ color: "#ef4444", fontSize: "1rem", fontWeight: "700", marginBottom: "4px" }}>Permanently Delete Account</h4>
+                <p style={{ color: "#94a3b8", fontSize: "0.8rem", margin: 0 }}>This operation is instant and completely clears profile records.</p>
+              </div>
+              <button onClick={deleteUser} className="danger-btn">Delete Account</button>
             </div>
           </div>
         </div>
-
-        {/* RIGHT COLUMN: Account Control Forms */}
-        <div className="col-12 col-md-8">
-          <div className="card shadow-sm border border-secondary border-opacity-25 rounded-3 bg-white p-4 p-sm-5">
-            
-            <h4 className="fw-bold text-dark mb-4 border-bottom pb-2">
-              Account Settings
-            </h4>
-
-            {/* ACTION 1: Change Username */}
-            <div className="mb-4 bg-light p-3 rounded-3 border border-secondary border-opacity-10">
-              <label className="form-label text-dark fw-bold small mb-2">
-                Update Profile Name
-              </label>
-              <div className="input-group">
-                <input
-                  type="text"
-                  placeholder="Enter new username"
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="form-control border-secondary border-opacity-50 py-2"
-                />
-                <button
-                  onClick={changeUsername}
-                  className="btn btn-dark fw-semibold px-4"
-                >
-                  Update
-                </button>
-              </div>
-            </div>
-
-            {/* ACTION 2: Change Password */}
-            <div className="mb-4 bg-light p-3 rounded-3 border border-secondary border-opacity-10">
-              <label className="form-label text-dark fw-bold small mb-2">
-                Change Account Password
-              </label>
-              <div className="input-group">
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="form-control border-secondary border-opacity-50 py-2"
-                />
-                <button
-                  onClick={changePassword}
-                  className="btn btn-dark fw-semibold px-4"
-                >
-                  Update
-                </button>
-              </div>
-            </div>
-
-            {/* ACTION 3: Change Profile Picture */}
-            <div className="mb-5 bg-light p-3 rounded-3 border border-secondary border-opacity-10">
-              <label className="form-label text-dark fw-bold small mb-2">
-                Update Profile Photo URL
-              </label>
-              <div className="input-group">
-                <input
-                  type="text"
-                  placeholder="https://example.com/photo.jpg"
-                  onChange={(e) => setProfilePic(e.target.value)}
-                  className="form-control border-secondary border-opacity-50 py-2"
-                />
-                <button
-                  onClick={changeProfilePic}
-                  className="btn btn-dark fw-semibold px-4"
-                >
-                  Update
-                </button>
-              </div>
-            </div>
-
-            {/* DANGER ZONE SECTION */}
-            <div className="border-top border-danger border-opacity-25 pt-4 mt-2">
-              <h5 className="text-danger fw-bold small uppercase tracking-wider mb-3">
-                Danger Zone
-              </h5>
-              <div className="d-flex align-items-center justify-content-between p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-3">
-                <div>
-                  <h6 className="fw-bold text-dark mb-0 small">Delete this account permanent</h6>
-                  <p className="text-muted mb-0 small" style={{ fontSize: "12px" }}>
-                    Once deleted, your account details cannot be retrieved.
-                  </p>
-                </div>
-                <button
-                  onClick={deleteUser}
-                  className="btn btn-danger fw-semibold px-4 py-2 btn-sm rounded-2"
-                >
-                  Delete Account
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
       </div>
     </div>
-  </div>
-);
+  );
+}
+
+export default Dashboard;
