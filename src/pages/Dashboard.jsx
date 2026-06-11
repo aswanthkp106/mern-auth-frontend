@@ -32,9 +32,12 @@ function Dashboard() {
   };
 
   const changeUsername = async () => {
+    // FIX: Safely grab whichever security key name your backend sent
+    const secureToken = user.token || user.accessToken;
+
     try {
       const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-username", { username }, {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${secureToken}` }
       });
       const updated = { ...user, username: res.data.username };
       localStorage.setItem("user", JSON.stringify(updated));
@@ -46,9 +49,12 @@ function Dashboard() {
   };
 
   const changePassword = async () => {
+    // FIX: Safely grab whichever security key name your backend sent
+    const secureToken = user.token || user.accessToken;
+
     try {
       await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/change-password", { password }, {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${secureToken}` }
       });
       alert("Password changed!");
     } catch (err) {
@@ -58,9 +64,13 @@ function Dashboard() {
 
   const changeProfilePic = async () => {
     if (!profilePic) return alert("Please select an image file first!");
+    
+    // FIX: Safely grab whichever security key name your backend sent
+    const secureToken = user.token || user.accessToken;
+
     try {
       const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-profilepic", { profilePic }, {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${secureToken}` }
       });
       const updated = { ...user, profilePic: res.data.profilePic };
       localStorage.setItem("user", JSON.stringify(updated));
@@ -78,9 +88,12 @@ function Dashboard() {
 
   const deleteUser = async () => {
     if (window.confirm("Are you sure you want to delete your account?")) {
+      // FIX: Safely grab whichever security key name your backend sent
+      const secureToken = user.token || user.accessToken;
+
       try {
         await axios.delete("https://mern-auth-backend-lwz3.onrender.com/api/user/delete", {
-          headers: { Authorization: `Bearer ${user.token}` }
+          headers: { Authorization: `Bearer ${secureToken}` }
         });
         localStorage.removeItem("user");
         alert("Account deleted");
