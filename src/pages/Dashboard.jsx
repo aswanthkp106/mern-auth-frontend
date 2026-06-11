@@ -21,6 +21,7 @@ function Dashboard() {
     }
   }, []);
 
+  // Converts physical photo file to Base64 string text
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -34,12 +35,13 @@ function Dashboard() {
 
   const changeUsername = async () => {
     if (!username) return alert("Please enter a new username first!");
-    if (!user._id) return alert("User ID not found. Please log out and log back in.");
+    if (!user._id) return alert("User ID missing. Try logging out and back in.");
 
     try {
-      // Matches your backend route: /change-username/:id
+      // FIX: Matches backend route syntax exactly -> /change-username/:id
       const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/change-username/${user._id}`, { username });
       
+      // Update local storage and screen with the updated user info returned from backend
       const updated = { ...user, username: res.data.username };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
@@ -52,10 +54,10 @@ function Dashboard() {
 
   const changePassword = async () => {
     if (!password) return alert("Please enter a new password first!");
-    if (!user._id) return alert("User ID not found. Please log out and log back in.");
+    if (!user._id) return alert("User ID missing. Try logging out and back in.");
 
     try {
-      // Matches your backend route: /change-password/:id
+      // FIX: Matches backend route syntax exactly -> /change-password/:id
       await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/change-password/${user._id}`, { password });
       alert("Password changed successfully!");
     } catch (err) {
@@ -65,13 +67,14 @@ function Dashboard() {
   };
 
   const changeProfilePic = async () => {
-    if (!profilePic) return alert("Please select an image file from your gallery first!");
-    if (!user._id) return alert("User ID not found. Please log out and log back in.");
+    if (!profilePic) return alert("Please select an image file first!");
+    if (!user._id) return alert("User ID missing. Try logging out and back in.");
 
     try {
-      // Matches the brand new backend route: /update-profilepic/:id
+      // FIX: Matches backend route syntax exactly -> /update-profilepic/:id
       const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/update-profilepic/${user._id}`, { profilePic });
       
+      // Look directly into updatedUser document return payload (res.data.profilePic)
       const updated = { ...user, profilePic: res.data.profilePic };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
@@ -88,11 +91,11 @@ function Dashboard() {
   };
 
   const deleteUser = async () => {
-    if (window.confirm("Are you sure you want to delete your account permanently?")) {
-      if (!user._id) return alert("User ID not found.");
+    if (window.confirm("Are you sure you want to permanently delete your account?")) {
+      if (!user._id) return alert("User ID missing.");
 
       try {
-        // Matches your backend route: /delete-user/:id
+        // FIX: Matches backend route syntax exactly -> /delete-user/:id
         await axios.delete(`https://mern-auth-backend-lwz3.onrender.com/api/user/delete-user/${user._id}`);
         localStorage.removeItem("user");
         alert("Account deleted");
@@ -112,6 +115,7 @@ function Dashboard() {
       </nav>
 
       <div className="dash-main-grid">
+        {/* Left Side Panel: Glowing Round Profile Frame */}
         <div className="dash-card profile-panel">
           <div className="avatar-wrapper">
             <img
@@ -124,6 +128,7 @@ function Dashboard() {
           <p className="dash-user-email">{user.email}</p>
         </div>
 
+        {/* Right Side Panel: Settings Mutation Inputs */}
         <div className="dash-card">
           <h3 className="settings-title">Account Management</h3>
 
@@ -155,7 +160,7 @@ function Dashboard() {
             <div className="danger-alert-box">
               <div>
                 <h4 style={{ color: "#ef4444", fontSize: "1rem", fontWeight: "700", marginBottom: "4px" }}>Permanently Delete Account</h4>
-                <p style={{ color: "#94a3b8", fontSize: "0.8rem", margin: 0 }}>This operation is instant and completely clears your database records.</p>
+                <p style={{ color: "#94a3b8", fontSize: "0.8rem", margin: 0 }}>This operation is instant and completely clears profile records.</p>
               </div>
               <button onClick={deleteUser} className="danger-btn">Delete Account</button>
             </div>
