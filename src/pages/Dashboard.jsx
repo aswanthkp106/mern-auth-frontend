@@ -38,10 +38,9 @@ function Dashboard() {
     if (!user._id) return alert("User ID missing. Try logging out and back in.");
 
     try {
-      // FIX: Matches backend route syntax exactly -> /change-username/:id
-      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/change-username/${user._id}`, { username });
+      // FIX: Changed base path from /api/user to /api/auth to match server file
+      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/auth/change-username/${user._id}`, { username });
       
-      // Update local storage and screen with the updated user info returned from backend
       const updated = { ...user, username: res.data.username };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
@@ -57,8 +56,8 @@ function Dashboard() {
     if (!user._id) return alert("User ID missing. Try logging out and back in.");
 
     try {
-      // FIX: Matches backend route syntax exactly -> /change-password/:id
-      await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/change-password/${user._id}`, { password });
+      // FIX: Changed base path from /api/user to /api/auth to match server file
+      await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/auth/change-password/${user._id}`, { password });
       alert("Password changed successfully!");
     } catch (err) {
       console.log(err);
@@ -71,10 +70,9 @@ function Dashboard() {
     if (!user._id) return alert("User ID missing. Try logging out and back in.");
 
     try {
-      // FIX: Matches backend route syntax exactly -> /update-profilepic/:id
-      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/update-profilepic/${user._id}`, { profilePic });
+      // FIX: Changed base path from /api/user to /api/auth to match server file
+      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/auth/update-profilepic/${user._id}`, { profilePic });
       
-      // Look directly into updatedUser document return payload (res.data.profilePic)
       const updated = { ...user, profilePic: res.data.profilePic };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
@@ -95,8 +93,8 @@ function Dashboard() {
       if (!user._id) return alert("User ID missing.");
 
       try {
-        // FIX: Matches backend route syntax exactly -> /delete-user/:id
-        await axios.delete(`https://mern-auth-backend-lwz3.onrender.com/api/user/delete-user/${user._id}`);
+        // FIX: Changed base path from /api/user to /api/auth to match server file
+        await axios.delete(`https://mern-auth-backend-lwz3.onrender.com/api/auth/delete-user/${user._id}`);
         localStorage.removeItem("user");
         alert("Account deleted");
         window.location.href = "/";
