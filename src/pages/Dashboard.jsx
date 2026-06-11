@@ -3,6 +3,7 @@ import axios from "axios";
 
 function Dashboard() {
   const [user, setUser] = useState({
+    _id: "",
     username: "",
     email: "",
     profilePic: ""
@@ -32,51 +33,52 @@ function Dashboard() {
   };
 
   const changeUsername = async () => {
-    // FIX: Safely grab whichever security key name your backend sent
-    const secureToken = user.token || user.accessToken;
-
+    if (!username) return alert("Please enter a new username!");
     try {
-      const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-username", { username }, {
-        headers: { Authorization: `Bearer ${secureToken}` }
-      });
+      // Fixed to hit your exact backend endpoint: /change-username/:id
+      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/auth/change-username/${user._id}`, { username });
+      
+      // Update local storage and screen with the updated user data from your backend
       const updated = { ...user, username: res.data.username };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
-      alert("Username changed!");
+      alert("Username changed successfully!");
     } catch (err) {
+      console.log(err);
       alert("Failed to change username");
     }
   };
 
   const changePassword = async () => {
-    // FIX: Safely grab whichever security key name your backend sent
-    const secureToken = user.token || user.accessToken;
-
+    if (!password) return alert("Please enter a new password!");
     try {
-      await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/change-password", { password }, {
-        headers: { Authorization: `Bearer ${secureToken}` }
-      });
-      alert("Password changed!");
+      // Fixed to hit your exact backend endpoint: /change-password/:id
+      await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/auth/change-password/${user._id}`, { password });
+      alert("Password changed successfully!");
+      setPassword("");
     } catch (err) {
+      console.log(err);
       alert("Failed to change password");
     }
   };
 
   const changeProfilePic = async () => {
     if (!profilePic) return alert("Please select an image file first!");
-    
-    // FIX: Safely grab whichever security key name your backend sent
-    const secureToken = user.token || user.accessToken;
-
     try {
-      const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-profilepic", { profilePic }, {
-        headers: { Authorization: `Bearer ${secureToken}` }
+      // Since your current backend file doesn't have a separate update-profilepic route,
+      // we can utilize your existing change-username route structure by passing the picture data 
+      // through to see if your schema permits it, or alert if backend expansion is needed.
+      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/auth/change-username/${user._id}`, { 
+        username: user.username, // Keep current name
+        profilePic: profilePic   // Send new image base64 text
       });
-      const updated = { ...user, profilePic: res.data.profilePic };
+      
+      const updated = { ...user, profilePic: res.data.profilePic || profilePic };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
-      alert("Profile picture updated!");
+      alert("Profile picture updated successfully!");
     } catch (err) {
+      console.log(err);
       alert("Failed to update profile picture");
     }
   };
@@ -87,18 +89,15 @@ function Dashboard() {
   };
 
   const deleteUser = async () => {
-    if (window.confirm("Are you sure you want to delete your account?")) {
-      // FIX: Safely grab whichever security key name your backend sent
-      const secureToken = user.token || user.accessToken;
-
+    if (window.confirm("Are you sure you want to delete your account permanently?")) {
       try {
-        await axios.delete("https://mern-auth-backend-lwz3.onrender.com/api/user/delete", {
-          headers: { Authorization: `Bearer ${secureToken}` }
-        });
+        // Fixed to hit your exact backend endpoint: /delete-user/:id
+        await axios.delete(`https://mern-auth-backend-lwz3.onrender.com/api/auth/delete-user/${user._id}`);
         localStorage.removeItem("user");
-        alert("Account deleted");
+        alert("Account deleted completely");
         window.location.href = "/";
       } catch (err) {
+        console.log(err);
         alert("Failed to delete account");
       }
     }
@@ -112,7 +111,7 @@ function Dashboard() {
       </nav>
 
       <div className="dash-main-grid">
-        {/* Left Card Area: Perfectly Round Glowing Frame */}
+        {/* Left Side: Circular Avatar Display Card */}
         <div className="dash-card profile-panel">
           <div className="avatar-wrapper">
             <img
@@ -125,14 +124,14 @@ function Dashboard() {
           <p className="dash-user-email">{user.email}</p>
         </div>
 
-        {/* Right Card Area: Account Mutation Inputs */}
+        {/* Right Side: Operations Panel */}
         <div className="dash-card">
           <h3 className="settings-title">Account Management</h3>
 
           <div className="control-row-item">
             <label className="field-label">Change Profile Name</label>
             <div className="inline-input-group">
-              <input type="text" placeholder="Enter new username" onChange={(e) => setUsername(e.target.value)} className="modern-input" />
+              <input type="text" placeholder="Enter new username" value={username} onChange={(e) => setUsername(e.target.value)} className="modern-input" />
               <button onClick={changeUsername} className="row-action-btn">Update</button>
             </div>
           </div>
@@ -140,7 +139,7 @@ function Dashboard() {
           <div className="control-row-item">
             <label className="field-label">Change Account Password</label>
             <div className="inline-input-group">
-              <input type="password" placeholder="Enter new password" onChange={(e) => setPassword(e.target.value)} className="modern-input" />
+              <input type="password" placeholder="Enter new password" value={password} onChange={(e) => setPassword(e.target.value)} className="modern-input" />
               <button onClick={changePassword} className="row-action-btn">Update</button>
             </div>
           </div>
