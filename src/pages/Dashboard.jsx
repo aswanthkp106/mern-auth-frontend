@@ -3,6 +3,7 @@ import axios from "axios";
 
 function Dashboard() {
   const [user, setUser] = useState({
+    _id: "",
     username: "",
     email: "",
     profilePic: ""
@@ -11,7 +12,6 @@ function Dashboard() {
   const [password, setPassword] = useState("");
   const [profilePic, setProfilePic] = useState("");
 
-  // Safely load profile data out of local storage when page mounts
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -21,26 +21,25 @@ function Dashboard() {
     }
   }, []);
 
-  // Handles reading the file from your phone/computer gallery and converting it to a string
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfilePic(reader.result); // Saves Base64 text data to state
+        setProfilePic(reader.result);
       };
-      reader.readAsDataURL(file); // Reads the physical file data
+      reader.readAsDataURL(file);
     }
   };
 
   const changeUsername = async () => {
     if (!username) return alert("Please enter a new username first!");
-    const secureToken = user.token || user.accessToken;
+    if (!user._id) return alert("User ID not found. Please log out and log back in.");
 
     try {
-      const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-username", { username }, {
-        headers: { Authorization: `Bearer ${secureToken}` }
-      });
+      // Matches your backend route: /change-username/:id
+      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/change-username/${user._id}`, { username });
+      
       const updated = { ...user, username: res.data.username };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
@@ -53,12 +52,11 @@ function Dashboard() {
 
   const changePassword = async () => {
     if (!password) return alert("Please enter a new password first!");
-    const secureToken = user.token || user.accessToken;
+    if (!user._id) return alert("User ID not found. Please log out and log back in.");
 
     try {
-      await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/change-password", { password }, {
-        headers: { Authorization: `Bearer ${secureToken}` }
-      });
+      // Matches your backend route: /change-password/:id
+      await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/change-password/${user._id}`, { password });
       alert("Password changed successfully!");
     } catch (err) {
       console.log(err);
@@ -68,17 +66,13 @@ function Dashboard() {
 
   const changeProfilePic = async () => {
     if (!profilePic) return alert("Please select an image file from your gallery first!");
-    const secureToken = user.token || user.accessToken;
+    if (!user._id) return alert("User ID not found. Please log out and log back in.");
 
     try {
-      const res = await axios.put("https://mern-auth-backend-lwz3.onrender.com/api/user/update-profilepic", { profilePic }, {
-        headers: { Authorization: `Bearer ${secureToken}` }
-      });
+      // Matches the brand new backend route: /update-profilepic/:id
+      const res = await axios.put(`https://mern-auth-backend-lwz3.onrender.com/api/user/update-profilepic/${user._id}`, { profilePic });
       
-      // Handles whatever key name your backend uses to return the updated picture field
-      const serverImage = res.data?.profilePic || res.data?.profileImage || res.data?.avatar || res.data?.user?.profilePic || profilePic;
-      
-      const updated = { ...user, profilePic: serverImage };
+      const updated = { ...user, profilePic: res.data.profilePic };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
       alert("Profile picture updated successfully!");
@@ -95,12 +89,11 @@ function Dashboard() {
 
   const deleteUser = async () => {
     if (window.confirm("Are you sure you want to delete your account permanently?")) {
-      const secureToken = user.token || user.accessToken;
+      if (!user._id) return alert("User ID not found.");
 
       try {
-        await axios.delete("https://mern-auth-backend-lwz3.onrender.com/api/user/delete", {
-          headers: { Authorization: `Bearer ${secureToken}` }
-        });
+        // Matches your backend route: /delete-user/:id
+        await axios.delete(`https://mern-auth-backend-lwz3.onrender.com/api/user/delete-user/${user._id}`);
         localStorage.removeItem("user");
         alert("Account deleted");
         window.location.href = "/";
@@ -113,16 +106,12 @@ function Dashboard() {
 
   return (
     <div>
-      {/* Top Professional Navigation Header */}
       <nav className="dash-nav">
         <span className="dash-brand">Control Center Dashboard</span>
         <button onClick={logout} className="logout-nav-btn">Logout</button>
       </nav>
 
-      {/* Main Content Layout Grid */}
       <div className="dash-main-grid">
-        
-        {/* LEFT PANEL: Circular Avatar Status Panel */}
         <div className="dash-card profile-panel">
           <div className="avatar-wrapper">
             <img
@@ -135,53 +124,33 @@ function Dashboard() {
           <p className="dash-user-email">{user.email}</p>
         </div>
 
-        {/* RIGHT PANEL: Settings Configuration Actions */}
         <div className="dash-card">
           <h3 className="settings-title">Account Management</h3>
 
-          {/* Action Row 1: Username mutation */}
           <div className="control-row-item">
             <label className="field-label">Change Profile Name</label>
             <div className="inline-input-group">
-              <input 
-                type="text" 
-                placeholder="Enter new username" 
-                onChange={(e) => setUsername(e.target.value)} 
-                className="modern-input" 
-              />
+              <input type="text" placeholder="Enter new username" onChange={(e) => setUsername(e.target.value)} className="modern-input" />
               <button onClick={changeUsername} className="row-action-btn">Update</button>
             </div>
           </div>
 
-          {/* Action Row 2: Password mutation */}
           <div className="control-row-item">
             <label className="field-label">Change Account Password</label>
             <div className="inline-input-group">
-              <input 
-                type="password" 
-                placeholder="Enter new password" 
-                onChange={(e) => setPassword(e.target.value)} 
-                className="modern-input" 
-              />
+              <input type="password" placeholder="Enter new password" onChange={(e) => setPassword(e.target.value)} className="modern-input" />
               <button onClick={changePassword} className="row-action-btn">Update</button>
             </div>
           </div>
 
-          {/* Action Row 3: File Uploader from Gallery */}
           <div className="control-row-item">
             <label className="field-label">Upload New Profile Photo</label>
             <div className="inline-input-group">
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleFileChange} 
-                className="modern-input" 
-              />
+              <input type="file" accept="image/*" onChange={handleFileChange} className="modern-input" />
               <button onClick={changeProfilePic} className="row-action-btn">Update</button>
             </div>
           </div>
 
-          {/* Bottom Destructive Operational Panel */}
           <div className="danger-section">
             <div className="danger-alert-box">
               <div>
@@ -191,7 +160,6 @@ function Dashboard() {
               <button onClick={deleteUser} className="danger-btn">Delete Account</button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
