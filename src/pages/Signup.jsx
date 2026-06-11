@@ -3,7 +3,6 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 function Signup() {
-
   const [user, setUser] = useState({
     username: "",
     email: "",
@@ -12,90 +11,117 @@ function Signup() {
   });
 
   const handleChange = (e) => {
-
     setUser({
       ...user,
       [e.target.name]: e.target.value
     });
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
     try {
-
       const res = await axios.post(
         "https://mern-auth-backend-lwz3.onrender.com/api/auth/signup",
         user
       );
-
       console.log(res.data);
-
       alert("Signup successful");
-
       window.location.href = "/login";
-
-    } catch(err) {
-
+    } catch (err) {
       console.log(err);
-
       alert("Signup failed");
-
     }
-
   };
 
   return (
+    <div className="bg-light min-vh-100 d-flex align-items-center justify-content-center py-5">
+      <div className="container" style={{ maxWidth: "450px" }}>
+        <div className="card shadow-sm border border-secondary border-opacity-25 rounded-3 bg-white p-4 p-sm-5">
+          
+          {/* Header Section */}
+          <div className="text-center mb-4">
+            <h2 className="fw-bold text-dark mb-1">Create an Account</h2>
+            <p className="text-muted small">Sign up to access your dashboard management</p>
+          </div>
 
-    <div>
+          {/* Form Section */}
+          <form onSubmit={handleSubmit}>
+            
+            {/* Username Input */}
+            <div className="mb-3">
+              <label className="form-label text-dark fw-semibold small">Username</label>
+              <input
+                type="text"
+                name="username"
+                className="form-control border-secondary border-opacity-50 py-2"
+                placeholder="Enter your username"
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-      <h1>Signup</h1>
+            {/* Email Input */}
+            <div className="mb-3">
+              <label className="form-label text-dark fw-semibold small">Email Address</label>
+              <input
+                type="email"
+                name="email"
+                className="form-control border-secondary border-opacity-50 py-2"
+                placeholder="name@example.com"
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-      <form onSubmit={handleSubmit}>
+            {/* Password Input */}
+            <div className="mb-3">
+              <label className="form-label text-dark fw-semibold small">Password</label>
+              <input
+                type="password"
+                name="password"
+                className="form-control border-secondary border-opacity-50 py-2"
+                placeholder="••••••••"
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          onChange={handleChange}
-        />
+            {/* Profile Picture Input */}
+            <div className="mb-4">
+              <label className="form-label text-dark fw-semibold small">Profile Picture URL</label>
+              <input
+                type="text"
+                name="profilePic"
+                className="form-control border-secondary border-opacity-50 py-2"
+                placeholder="https://example.com/image.jpg"
+                onChange={handleChange}
+              />
+            </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-        />
+            {/* Submit Button */}
+            <button 
+              type="submit" 
+              className="btn btn-dark w-100 py-2 fw-semibold mb-3 rounded-2"
+              style={{ transition: "all 0.2s" }}
+            >
+              Sign Up
+            </button>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-        />
+          </form>
 
-        <input
-          type="text"
-          name="profilePic"
-          placeholder="Profile Picture URL"
-          onChange={handleChange}
-        />
+          {/* Footer Navigation Link */}
+          <div className="text-center mt-2">
+            <p className="text-muted small mb-0">
+              Already have an account?{" "}
+              <Link to="/login" className="text-dark fw-bold text-decoration-none border-bottom border-dark pb-1">
+                Login here
+              </Link>
+            </p>
+          </div>
 
-        <button type="submit">
-          Signup
-        </button>
-
-      </form>
-
-      <p>
-        Already have an account?
-        <Link to="/login"> Login </Link>
-      </p>
-
+        </div>
+      </div>
     </div>
-
   );
 }
 
